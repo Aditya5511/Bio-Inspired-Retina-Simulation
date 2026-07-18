@@ -49,10 +49,17 @@ if __name__ == "__main__":
     # 1. Run the entire upstream pipelines
     time_array, luminance_input = generate_chirp_stimulus()
     
+    # === REPLACE THE OLD IDEAL PIPELINE WITH THIS ===
     # Ideal Pipeline
     ideal_opl = simulate_opl(time_array, luminance_input)
-    ideal_on_b, ideal_off_b = simulate_bipolar(time_array, ideal_opl)
-    ideal_on_spikes, ideal_off_spikes = simulate_ganglion(time_array, ideal_on_b, ideal_off_b)
+    
+    # 1. Bipolar layer returns a single unrectified voltage array
+    ideal_bip = simulate_bipolar(time_array, ideal_opl)
+    
+    # 2. Extract ON and OFF spikes separately by setting the xi pathways (+1 and -1)
+    _, ideal_on_spikes = simulate_ganglion(time_array, ideal_bip, xi=1)
+    _, ideal_off_spikes = simulate_ganglion(time_array, ideal_bip, xi=-1)
+    # ===============================================
     
     # Hardware Emulated Pipeline
     q_opl = simulate_quantized_opl(time_array, luminance_input)
